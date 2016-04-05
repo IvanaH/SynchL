@@ -1,0 +1,5 @@
+package mypack;
+
+class IConstD {
+
+}

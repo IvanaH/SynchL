@@ -1,0 +1,35 @@
+class Bubble {
+	public static void main(String args[]){
+		int nums[] = {99, -10, 15, 236, 156747, 23, 
+				     -96324, 635, -9, 1, 43, 536};
+		
+		int a,b,t;
+		int size;
+		
+		size = nums.length;
+		
+		//display the original array
+		System.out.println("Original array is:");
+		for(int i=0; i < size; i++)
+			System.out.print(" " + nums[i]);
+		System.out.println();
+		
+		//Bubble sort
+		for(a = 1;a<size;a++){
+			for(b=size-1;b >=a;b--){
+				if(nums[b-1] > nums[b]){
+					t = nums[b-1];
+					nums[b-1] = nums [b];
+					nums[b] = t;
+				}				
+			}
+		}
+		
+		//display the sorted array
+		System.out.println("Sorted array is:");
+		for(int i=0; i < size; i++)
+			System.out.print(" " + nums[i]);
+		System.out.println();
+		
+	}
+}
