@@ -2,10 +2,10 @@ package mypack;
 
 import java.io.*;
 
-class ShowFile {
+class ShowFileII {
 	public static void main(String args[]){
 		int i;
-		FileInputStream fn;
+		FileInputStream fn = null;
 	
 		//First make sure that a file has been specified
 		if(args.length != 1){
@@ -15,38 +15,32 @@ class ShowFile {
 		
 		try{
 			fn = new FileInputStream(args[0]);
-		}catch(FileNotFoundException ext){
-			System.out.println("File not found.");
-			return;
-		}
-		
-		
-		//read file until EOF encountered
-		try{
+			
 			do{
 				i = fn.read();
 				if(i!=-1)
 					System.out.println((char)i);
 			}while(i!=-1);
-		}catch(IOException ext1){
+			
+		}catch(FileNotFoundException ext){
+			System.out.println("File not found.");
+			return;
+		}catch(IOException ext){
 			System.out.println("Error reading file");
+//		}catch(IOException ext){
+//			System.out.println("Error message: "+ ext);
 		}
-		
-//		try{
-//			fn.close();
-//		}catch(IOException ext2){
-//			System.out.println("Error closing file");
-//		}
-		
+	
+				
 		//close file on the way out of the try block
 		finally{
 			try{
-				fn.close();
+				if(fn != null)
+					fn.close();
 			}catch(IOException exc){
 				System.out.println("Error closing file");
 			}
 		}
+		
 	}
-	
 }
-
