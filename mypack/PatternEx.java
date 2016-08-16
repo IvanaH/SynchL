@@ -99,11 +99,17 @@ class PatternEx {
 //		String text = "This is the text to be searched" 
 //		              + "for occurrences of http:a// and https:// pattern";
 //		String text = "http://";
-		String text = "John writes about this, and john Doe writes about that," +
-        " and John Wayne writes about everything.";
+//		String text = "John writes about this, and john Doe writes about that," +
+//        " and John Wayne writes about everything.";
+		String text = "<a href=\"/story/8693071\" "
+				+ "class=\"link-button\"><img src=\"http://pic2.zhimg.com/cd80fe754b"
+				+"bdfb5dc160377a73a2e009.jpg\"class=\"preview-image\"><span "
+				+"class=\"title\">真正的专业烘焙，会为了口感上哪怕 0.01% 的差别努力</span></a></div></div><div class=\"wrap\">"
+				+"<div class=\"box\"><a href=\"/story/8693356\" class=\"link-button\"><img";
 //		String reg = "(http|https)(:)";
-		String reg = "(John) (.+?) ";
-		Pattern pa = Pattern.compile(reg,Pattern.CASE_INSENSITIVE);
+//		String reg = "title\">(.*?)(</span>.*?)href=\"(.*?)(\") ";
+		String reg = "href=\"(.*?)(\") ";
+		Pattern pa = Pattern.compile(reg);
 		Matcher mc = pa.matcher(text);
 		
 //		System.out.println(mc.matches());
@@ -112,7 +118,7 @@ class PatternEx {
 		int count = 0;
 		while(mc.find()){
 			count ++;
-			System.out.println("Found "+count+" :"+mc.group() + " || "+mc.group(1)+" "+mc.group(2));
+			System.out.println("Found "+count+" :"+mc.group() + " || "+mc.group(1)+"|| "+mc.group(2));
 			System.out.println("Start - End: "+mc.start()+" - "+mc.end());
 			System.out.println();
 		}
