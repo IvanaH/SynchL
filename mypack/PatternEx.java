@@ -107,8 +107,8 @@ class PatternEx {
 				+"class=\"title\">真正的专业烘焙，会为了口感上哪怕 0.01% 的差别努力</span></a></div></div><div class=\"wrap\">"
 				+"<div class=\"box\"><a href=\"/story/8693356\" class=\"link-button\"><img";
 //		String reg = "(http|https)(:)";
-//		String reg = "title\">(.*?)(</span>.*?)href=\"(.*?)(\") ";
-		String reg = "href=\"(.*?)(\") ";
+		String reg = "title\">(.*?)(</span>.*?)href=\"(.*?)(\") ";
+//		String reg = "href=\"(.*?)(\") ";
 		Pattern pa = Pattern.compile(reg);
 		Matcher mc = pa.matcher(text);
 		
@@ -118,7 +118,7 @@ class PatternEx {
 		int count = 0;
 		while(mc.find()){
 			count ++;
-			System.out.println("Found "+count+" :"+mc.group() + " || "+mc.group(1)+"|| "+mc.group(2));
+			System.out.println("Found "+count+" :"+mc.group() + " || "+mc.group(1)+"|| "+mc.group(3));
 			System.out.println("Start - End: "+mc.start()+" - "+mc.end());
 			System.out.println();
 		}
