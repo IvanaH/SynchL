@@ -23,7 +23,7 @@ class sendReq{
 }
 
 //Using sub-class of thread to send requests concurrently
-class multiThreads extends Thread{
+class MultiThreads1 extends Thread{
 	private int total;
 	private int concurrency;
 	Thread t;
@@ -31,12 +31,12 @@ class multiThreads extends Thread{
 	sendReq sReq = new sendReq(); 
 			
 	// by default, the total and concurrency is 1.
-	public multiThreads() {
+	public MultiThreads1() {
 		total = 1;
 		concurrency = 1;
 	}
 	
-	public multiThreads(int totalThreads, int concurrntNum) {
+	public MultiThreads1(int totalThreads, int concurrntNum) {
 		total = totalThreads;
 		concurrency = concurrntNum;
 	}
@@ -44,10 +44,13 @@ class multiThreads extends Thread{
 	@Override
 	public void run(){
 		System.out.println(t.currentThread().getName());
+//		while (true) {	
+//			System.out.println(t.currentThread().getName());
+//		}
 		sReq.sendReqs();					
 	}
 
-	// 线程池实现：简版线程池 or fixed线程池
+	// TODO: use list or threadPool
 	public void start() {
 		for (int c = 0;c < total;){
 			if (Thread.activeCount() > concurrency)
@@ -61,10 +64,57 @@ class multiThreads extends Thread{
 	}
 }
 
+//Using runnable 
+class singleThread implements Runnable{
+	sendReq sReq;
+	
+	public singleThread(sendReq sendReq) {
+		this.sReq = sendReq;
+	}
+	
+	@Override
+	public void run() {
+		sReq.sendReqs();		
+	}
+}
+
+class MultiThreads2{
+	private int total;
+	private int concurrency;
+			
+	// by default, the total and concurrency is 1.
+	public MultiThreads2() {
+		total = 1;
+		concurrency = 1;
+	}
+	
+	public MultiThreads2(int totalThreads, int concurrntNum) {
+		total = totalThreads;
+		concurrency = concurrntNum;
+	}
+	
+	public void start(singleThread sThread) {
+		for (int c = 0;c < total;){
+			if (Thread.activeCount() > concurrency)
+				continue;
+			else{
+				Thread t = new Thread(sThread);
+				t.start();
+				c++;
+			}
+		}
+	}
+
+}
 
 class MultiThreadReq{
 	public static void main(String[] args) {
-		multiThreads mThreads = new multiThreads(30,5);
+		MultiThreads1 mThreads = new MultiThreads1(30,5);
 		mThreads.start();
+		
+//		MultiThreads2 mThreads2 = new MultiThreads2();
+//		sendReq sReq = new sendReq();
+//		singleThread sThread = new singleThread(sReq);
+//		mThreads2.start(sThread);
 	}
 }
