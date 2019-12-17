@@ -3,7 +3,7 @@ package rework;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ProduceConsumerSample {
+public class ProducerConsumerSample {
 
 	public static void main(String[] args) {
 		PC pc= new PC();
@@ -25,12 +25,14 @@ class ProducerDemo implements Runnable{
 		this.pc = pc; 
 	}
 	public void run() {
-		synchronized (pc) {
-			try {
-				pc.producer();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}			
+		while (true) {
+			synchronized (pc) {
+				try {
+					pc.producer();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}			
+			}
 		}
 	}
 }
@@ -42,12 +44,15 @@ class ConsumerDemo implements Runnable{
 		this.pc = pc; 
 	}
 	public void run() {
-		synchronized (pc) {
-			try {
-				pc.consumer();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}			
+		while (true) {
+			synchronized (pc) {
+				try {
+					pc.consumer();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}		
+			}
+	
 		}
 	}
 }
@@ -57,39 +62,34 @@ class PC{
 	int capacity = 5;
 	
 	public void producer() throws InterruptedException{
-		while (true) {
-			if(list.size()>capacity){
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}else{
-				Thread.sleep(500);
-				int value = new Random().nextInt(100);
-				System.out.print("producer insert: " + value + "\n");
-				list.add(value);
-				notify();// after call notify(), doesn't release lock immediately, continue the infinite loop, the hold on the pc source 
+		while (list.size()>=capacity) {
+			System.out.println("list is full. Producer is waiting.");
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		}		
+
+		}
+		Thread.sleep(500);
+		int value = new Random().nextInt(100);
+		System.out.print("producer insert: " + value + "\n");
+		list.add(value);
+		notify();
 	}
 	
 	public void consumer() throws InterruptedException {
-		while (true) {
-			if(list.size()==0 ){
+		while (list.size()==0) {
 				System.out.println("list is empty. Consumer is waiting.");
 				try {
 					wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			}
-			else{
-				Thread.sleep(1000);
-				int value = list.remove(0);
-				System.out.print("consumer get: " + value + "\n");
-				notify();
-			}
 		}		
+		Thread.sleep(1000);
+		int value = list.remove(0);
+		System.out.print("consumer get: " + value + "\n");
+		notify();
 	}
 }
