@@ -14,8 +14,7 @@ public class ProduceConsumerSample {
 		Thread thread2 = new Thread(consumerDemo);
 		
 		thread1.start();
-		System.out.print("print in main thread.");
-//		thread2.start();
+		thread2.start();
 	}
 }
 
@@ -26,7 +25,13 @@ class ProducerDemo implements Runnable{
 		this.pc = pc; 
 	}
 	public void run() {
-		pc.producer();
+		synchronized (pc) {
+			try {
+				pc.producer();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}			
+		}
 	}
 }
 
@@ -37,33 +42,54 @@ class ConsumerDemo implements Runnable{
 		this.pc = pc; 
 	}
 	public void run() {
-		pc.consumer();
+		synchronized (pc) {
+			try {
+				pc.consumer();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}			
+		}
 	}
 }
 
 class PC{
 	ArrayList<Integer> list= new ArrayList<>();
-	int capacity = 15;
+	int capacity = 5;
 	
-	public void producer(){
+	public void producer() throws InterruptedException{
 		while (true) {
-			int value = new Random().nextInt(100);
-			if(list.size()<capacity){
+			if(list.size()>capacity){
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}else{
+				Thread.sleep(500);
+				int value = new Random().nextInt(100);
 				System.out.print("producer insert: " + value + "\n");
 				list.add(value);
-			}else
-				break;
+				notify();// after call notify(), doesn't release lock immediately, continue the infinite loop, the hold on the pc source 
+			}
 		}		
 	}
 	
-	public void consumer() {
+	public void consumer() throws InterruptedException {
 		while (true) {
-			if(list.size() !=0){
+			if(list.size()==0 ){
+				System.out.println("list is empty. Consumer is waiting.");
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			else{
+				Thread.sleep(1000);
 				int value = list.remove(0);
 				System.out.print("consumer get: " + value + "\n");
+				notify();
 			}
-			else
-				System.out.println("list is empty.");
 		}		
 	}
 }
