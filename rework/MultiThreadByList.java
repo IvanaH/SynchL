@@ -15,7 +15,7 @@ class ThreadPoolByList{
 	private int total;
 	private int concurrency;
 	ArrayList<Runnable> joblist = new ArrayList<>();
-	List<Thread> workers = new ArrayList<>();		
+	List<Thread> workers = new ArrayList<>();	
 	
 	// by default, the total and concurrency is 1.
 	public ThreadPoolByList() {
@@ -33,7 +33,7 @@ class ThreadPoolByList{
 	
 	public void intialJobList(){
 		for(int i=0;i<total;i++){
-			joblist.add(new singleThread());
+			//TODO add a new job to joblist
 		}
 	}
 
@@ -88,15 +88,7 @@ class workers implements Runnable{
 	
 }
 
-//single job
-class singleThread implements Runnable{
-	sendReq sReq = new sendReq();
-	
-	@Override
-	public void run() {
-		sReq.sendReqs();		
-	}
-}
+
 
 public class MultiThreadByList{
 	public static void main(String[] args) {
