@@ -57,13 +57,12 @@ class DemoProducer implements Runnable {
      for (int i = 1; i <= productionSize; i++) { //produce products.
          try {
              produce(i);
-//             Thread.sleep(100);
+             Thread.sleep(10);
          } catch (InterruptedException e) {  e.printStackTrace(); }
      }
 }
 
  private void produce(int i) throws InterruptedException {
-  
     synchronized (sharedQueue) {
        //if sharedQuey is full wait until consumer consumes.
        while (sharedQueue.size() == maxSize) {
@@ -98,7 +97,7 @@ class DemoConsumer implements Runnable {
      while (true) {
          try {
            consume();
-           Thread.sleep(100);
+           Thread.sleep(10);
          } catch (InterruptedException e) {  e.printStackTrace(); }
      }
  }
@@ -112,9 +111,10 @@ class DemoConsumer implements Runnable {
                            + "producerThread to produce, sharedQueue's size= 0");
              sharedQueue.wait();
          }
-
-         System.out.println(Thread.currentThread().getName()+", CONSUMED : "+ sharedQueue.remove(0));
-         sharedQueue.notify();
+       
+       System.out.println(Thread.currentThread().getName()+", CONSUMED : "+ sharedQueue.remove(0));
+       sharedQueue.notify();
+       System.out.println(Thread.currentThread().getName()+", thread sleep...");
      }
  }
  

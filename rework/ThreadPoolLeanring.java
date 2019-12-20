@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 
 public class ThreadPoolLeanring{
 	public static void main(String[] args) {
-		UseArrayBlockingQ useArrayBlockingQ = new UseArrayBlockingQ(2, 5, 10);
+		UseArrayBlockingQ useArrayBlockingQ = new UseArrayBlockingQ(2, 5, 30);
 		useArrayBlockingQ.produceAndConsume();
 	} 
 }
@@ -28,16 +28,15 @@ class UseArrayBlockingQ{
 		this.queueLength = tNum;
 	}
 	
-	public void taskList(){
-		tlist = new ArrayBlockingQueue<>(queueLength);		
-	}
-	
 	public void produceAndConsume(){
+		tlist = new ArrayBlockingQueue<Integer>(this.queueLength);	
+		
 		for(int i = 0;i<producerNum;i++){
 			String pThreadName = "Producer-"+i;
 			Thread pThread = new Thread(new PLeaningProducer(tlist),pThreadName);
 			pThread.start();
 		}
+		
 		for(int i = 0;i<consumerNum;i++){
 			String cThreadName = "Consumer-"+i;
 			Thread cThread = new Thread(new PLeaningConsumer(tlist),cThreadName);
@@ -61,9 +60,14 @@ class PLeaningProducer implements Runnable {
 	}
 	
 	public void producer(){
-		int e = new Random().nextInt();
-		tlist.add(e);
-		System.out.println(Thread.currentThread().getName()+"has put: "+e);
+		int e =  new Random().nextInt();
+		System.out.println("Produce: "+e);
+		try {
+			tlist.add(e);
+     		System.out.println(Thread.currentThread().getName()+" has put: "+e);
+		} catch (IllegalStateException  e2) {
+			System.out.println(" List is full. ");
+		}
 	}
 }
 
@@ -78,13 +82,23 @@ class PLeaningConsumer implements Runnable{
 	@Override
 	public void run() {
 		while (true) {
-			consumer();											
+			try {
+				consumer();	
+				Thread.sleep(2);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
 	public void consumer(){
-	    Integer value = tlist.remove();
-		System.out.println(Thread.currentThread().getName()+"has got: "+value);
+		try {
+		    Integer value = tlist.poll();
+			System.out.println(Thread.currentThread().getName()+"has got: "+value);
+		} catch (Exception e) {
+			System.out.println(" List is empty. ");
+		}
 	}
 
 }
