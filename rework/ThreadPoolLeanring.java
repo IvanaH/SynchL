@@ -1,23 +1,46 @@
 package rework;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.*;
 
 public class ThreadPoolLeanring{
 	public static void main(String[] args) {
-		UseArrayBlockingQ useArrayBlockingQ = new UseArrayBlockingQ(2, 5, 30);
-		useArrayBlockingQ.produceAndConsume();
+//		UseArrayBlockingQ useArrayBlockingQ = new UseArrayBlockingQ(2, 5, 30);
+//		useArrayBlockingQ.produceAndConsume();
+		
+		ThreadPoolExecutorLearning threadPoolExecutorLearning = new ThreadPoolExecutorLearning(5,2);
+		ThreadPoolExecutor producerPool = threadPoolExecutorLearning.FixedPool();
+		ThreadPoolExecutor consumerPool = threadPoolExecutorLearning.CachedPool();
+		ArrayBlockingQueue<Integer> tlist = new ArrayBlockingQueue<>(100);
+		producerPool.execute(new PLeaningProducer(tlist));
+		consumerPool.execute(new PLeaningConsumer(tlist));
 	} 
 }
 
 
-class UseStaticPool{
-	ThreadPoolExecutor threadPoolExecutor;
+class ThreadPoolExecutorLearning{
+	int taskNum=1;
+	int threadNum=1;
+	
+	public ThreadPoolExecutorLearning(int taskNum,int threadNum) {
+		this.taskNum = taskNum;
+		this.threadNum = threadNum;
+	}
+	public ThreadPoolExecutor StaticPool() {
+		ThreadPoolExecutor singleThreadTP = new ThreadPoolExecutor(1,1,0L,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<Runnable>(taskNum));
+		return singleThreadTP;
+	} 
+	public ThreadPoolExecutor FixedPool() {
+		ThreadPoolExecutor fixedThreadTP = new ThreadPoolExecutor(threadNum,threadNum,0L,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<Runnable>(taskNum));
+		return fixedThreadTP;
+	}
+	public ThreadPoolExecutor CachedPool() {
+		ThreadPoolExecutor CachedThreadTP = new ThreadPoolExecutor(0,Integer.MAX_VALUE,0L,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<Runnable>(taskNum));
+		return CachedThreadTP;
+	}
 }
+
 
 // use take() and put() to get and add the elements
 class UseArrayBlockingQ{
