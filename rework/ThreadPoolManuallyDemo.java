@@ -66,7 +66,9 @@ class Worker implements Runnable{
 	public void run() {
 		while (isRunning) {
 			Job job = null;
-			
+		
+			ArrayList<Job> jobs = null;
+			//Where is jobs from
 			synchronized (jobs) {
 				if(jobs.isEmpty()){
 					
