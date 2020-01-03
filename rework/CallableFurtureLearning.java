@@ -57,9 +57,7 @@ class Task implements Callable<Integer>{
 	public Integer call() throws Exception {
 		System.out.println(Thread.currentThread().getName() + " start working....");
 //		Thread.sleep((int)(Math.random()*1000));
-		Thread.sleep(1200);
-		int r = 0;
-		r = (int)(Math.random()*100);
-		return r;
+		Thread.sleep(3000);
+		return ((int)(Math.random()*100));
 	}
 }
