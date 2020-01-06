@@ -19,6 +19,7 @@ class Contest implements Runnable{
 	final ThreadPoolExecutor fixedThreadPoolExecutor;
 
 	public Contest(int n) {
+		System.out.println("Constructing .....");
 		particNum = n;
         end = new CountDownLatch(n);
 		fixedThreadPoolExecutor = new ThreadPoolExecutor(n,n,0L,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<Runnable>(5));
