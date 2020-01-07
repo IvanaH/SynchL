@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 //	}
 //}
 class SetPool{
-	private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(10));
+	ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(10));
 
 	public void addTasks(int start,int num){		
 		for(int i=start;i<num;i++){
