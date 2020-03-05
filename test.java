@@ -1,4 +1,4 @@
-class test {
+class testA {
 	public static void newExcep(){
 		try{
 			System.out.println("Throw a new exception");
