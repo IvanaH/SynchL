@@ -2,6 +2,7 @@ package rework;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -20,10 +21,11 @@ class test{
 	}
 	
 	public void testHttpUtil() {
-		String method = "GET";
 		String url = "http://10.0.10.83:7804/migu-activity-thirdapi/backdoor/getPackageList";
-		RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), "{\"mobile\":\"15088603364\"}");
-		System.out.println(HttpUtil.invoke(method, url, body, null));
+		Map<String, String> headers = new HashMap<>();
+		Map<String, Object> params = new HashMap<>();
+		params.put("mobile", "15088603364");
+		System.out.println(HttpUtil.get(url, headers,params));
 		
 	}
 }

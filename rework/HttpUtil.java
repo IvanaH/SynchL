@@ -1,7 +1,11 @@
 package rework;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -19,7 +23,22 @@ public class HttpUtil {
 
 	private static final OkHttpClient client = new OkHttpClient.Builder().connectTimeout(30, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build();
 
-	public static Response doInvoke(String method, String url, RequestBody body, Map<String, String> headers) {
+	public static Response doInvoke(String method, String url, RequestBody body, Map<String, String> headers,Map<String, Object> params) {
+		if (params!=null&&params.size()>0) {
+			StringBuffer urls = new StringBuffer(url);
+			urls.append("?");
+			for (Iterator<Entry<String, Object>> iterator = params.entrySet().iterator(); iterator.hasNext();) {
+				Map.Entry<String, Object> entry = (Entry<String, Object>) iterator.next();
+				String key = entry.getKey();
+				Object value = entry.getValue();
+				try {
+					urls.append(key).append("=").append(URLEncoder.encode(String.valueOf(value), "utf-8")).append("&");
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+			url = urls.toString().substring(0, urls.lastIndexOf("&"));
+		}
 		Request.Builder builder = new Request.Builder().url(url).method(method, body);
 		if (headers != null && headers.size() > 0) {
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
@@ -37,8 +56,8 @@ public class HttpUtil {
 		return null;
 	}
 	
-	public static String invoke(String method, String url, RequestBody body, Map<String, String> headers) {
-		Response response = doInvoke(method, url, body, headers);
+	public static String invoke(String method, String url, RequestBody body, Map<String, String> headers,Map<String, Object> params) {
+		Response response = doInvoke(method, url, body, headers,params);
 		if(response!=null) {
 			if(response.code() == 200) {
 				try {
@@ -51,33 +70,33 @@ public class HttpUtil {
 		return null;
 	}
 	
-	public static Response httpPost(String url,String content, Map<String, String> headers) {
-		return doInvoke("POST", url, RequestBody.create(MediaType.parse("application/json"), content), headers);
+	public static Response httpPost(String url,String content, Map<String, String> headers,Map<String, Object> params) {
+		return doInvoke("POST", url, RequestBody.create(MediaType.parse("application/json"), content), headers,params);
 	}
 
-	public static Response httpPost(String url, MediaType mediaType,String content, Map<String, String> headers) {
-		return doInvoke("POST", url, RequestBody.create(mediaType, content), headers);
+	public static Response httpPost(String url, MediaType mediaType,String content, Map<String, String> headers,Map<String, Object> params) {
+		return doInvoke("POST", url, RequestBody.create(mediaType, content), headers,params);
 	}
 
-	public static Response httpGet(String url, Map<String, String> headers) {
-		return doInvoke("GET", url, null, headers);
+	public static Response httpGet(String url, Map<String, String> headers,Map<String, Object> params) {
+		return doInvoke("GET", url, null, headers,params);
 	}
 	
-	public static String post(String url,String content, Map<String, String> headers) {
-		return invoke("POST", url, RequestBody.create(MediaType.parse("application/json"), content), headers);
+	public static String post(String url,String content, Map<String, String> headers,Map<String, Object> params) {
+		return invoke("POST", url, RequestBody.create(MediaType.parse("application/json"), content), headers,params);
 	}
 
-	public static String post(String url, MediaType mediaType,String content, Map<String, String> headers) {
-		return invoke("POST", url, RequestBody.create(mediaType, content), headers);
+	public static String post(String url, MediaType mediaType,String content, Map<String, String> headers,Map<String, Object> params) {
+		return invoke("POST", url, RequestBody.create(mediaType, content), headers,params);
 	}
 
-	public static String get(String url, Map<String, String> headers) {
-		return invoke("GET", url, null, headers);
+	public static String get(String url, Map<String, String> headers,Map<String, Object> params) {
+		return invoke("GET", url, null, headers,params);
 	}
 	
 	public static void main(String[] args) {
 		
-		String ret = get("https://admin.jituancaiyun.com/aceproxy/checkstatus", null);
+		String ret = get("https://admin.jituancaiyun.com/aceproxy/checkstatus", null,null);
 		System.out.println(ret);
 	}
 	

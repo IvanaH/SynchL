@@ -3,67 +3,65 @@ package rework;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import okhttp3.RequestBody;
 
 /*** This class is a practice of executorService, httprequst and db ops.
 * @author Ivana.H
-* @version 1.0
 */
 public class ExecutorServicePrac{
 	public static void main(String[] args) {
 		EService eService = new EService();
-		eService.getPacks();	
+		eService.getPacks(eService.getMobiles());	
 	}
 }
 	
 class EService{
 	public static ExecutorService pool1 =  Executors.newFixedThreadPool(2);
+	public static List<String> mobiles = new ArrayList<>();
 	
-	public void getPacks() {
-//		List<Future> respList = new ArrayList<Future>();
-//		respList.add(pool1.submit(new PackageList()));
-//		
-//		for (Future f : respList){
-//			try {
-//				System.out.println(f.get().toString());
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			} catch (ExecutionException e) {
-//				e.printStackTrace();
-//			}
-//		}
+	public List<String> getMobiles() {
+		mobiles.add("15088603364");
+		mobiles.add("15068746748");
+		mobiles.add("15957193120");
+		mobiles.add("15958032925");
+		mobiles.add("18458872034");
+		return mobiles;
+	}
+	
+	public void getPacks(List<String> mobiles) {
+		List<Future> respList = new ArrayList<Future>();
 		
-		Future f = pool1.submit(new PackageList());
-		try {
-			System.out.println(f.get().toString());
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for(String mobile : mobiles){
+			Map<String, Object> params = new HashMap<>();
+			params.put("mobile", mobile);
+			PackageList packageList = new PackageList();
+			packageList.setParams(params);
+			respList.add(pool1.submit(packageList));
+			System.out.println("Before call:" + packageList.getParams());
+		}
+				
+		for (Future f : respList){
+			try {
+				System.out.println(f.get().toString());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
 
-class PackageList implements Runnable{
-	private String method = "GET";
+class PackageList implements Callable<String>{
 	private String url = "http://10.0.10.83:7804/migu-activity-thirdapi/backdoor/getPackageList";
-	private RequestBody body = null;
-	private HashMap<String, String> headers = new HashMap<String, String>();
-	
-	public String getMethod() {
-		return method;
-	}
-
-	public void setMethod(String method) {
-		this.method = method;
-	}
+	Map<String, String> headers = new HashMap<>();
+	Map<String, Object> params = new HashMap<>();
 
 	public String getUrl() {
 		return url;
@@ -73,25 +71,24 @@ class PackageList implements Runnable{
 		this.url = url;
 	}
 
-	public RequestBody getBody() {
-		return body;
-	}
-
-	public void setBody(RequestBody body) {
-		this.body = body;
-	}
-
-	public HashMap<String, String> getHeaders() {
+	public Map<String, String> getHeaders() {
 		return headers;
 	}
 
-	public void setHeaders(HashMap<String, String> headers) {
+	public void setHeaders(Map<String, String> headers) {
 		this.headers = headers;
 	}
 
+	public Map<String, Object> getParams() {
+		return params;
+	}
+
+	public void setParams(Map<String, Object> params) {
+		this.params = params;
+	}
+	
 	@Override
-	public void run() {
-		headers.put("mobile", "15088603364");
-		HttpUtil.invoke(method, url, body, headers);		
+	public String call() throws Exception{
+		return HttpUtil.get(url, headers, params);		
 	}
 }
