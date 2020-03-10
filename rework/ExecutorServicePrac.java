@@ -73,11 +73,18 @@ class EService{
 	}
 }
 
+
+
 class PackageList implements Callable<String>{
 	private String url = "http://10.0.10.83:7804/migu-activity-thirdapi/backdoor/getPackageList";
 	Map<String, String> headers = new HashMap<>();
 	Map<String, Object> params = new HashMap<>();
 
+	@Override
+	public String call() throws Exception{
+		return HttpUtil.get(url, headers, params);		
+	}
+	
 	public String getUrl() {
 		return url;
 	}
@@ -102,8 +109,5 @@ class PackageList implements Callable<String>{
 		this.params = params;
 	}
 	
-	@Override
-	public String call() throws Exception{
-		return HttpUtil.get(url, headers, params);		
-	}
+
 }
