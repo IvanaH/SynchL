@@ -24,10 +24,11 @@ public class DbUtil {
 		this.userName = userName;
 		this.password = password;
 		this.url = url;
+		druidDataSource  = new DruidDataSource();
 		druidDataSource.setUsername(userName);
 		druidDataSource.setPassword(password);
 		druidDataSource.setUrl(url);
-		druidDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		druidDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
 		try {
 			druidDataSource.init();
 		} catch (SQLException e) {
@@ -82,6 +83,11 @@ public class DbUtil {
 
 	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
+	}
+	
+	public static void main(String[] args) {
+		new DbUtil("root", "shinemo123", "jdbc:mysql://10.0.10.42:3306/shinemo_migu_activity");
+		System.out.println("Done!");
 	}
 	
 }

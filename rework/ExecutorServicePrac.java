@@ -17,7 +17,8 @@ import java.util.concurrent.Future;
 public class ExecutorServicePrac{
 	public static void main(String[] args) {
 		EService eService = new EService();
-		eService.getPacks(eService.getMobiles());	
+//		eService.getPacks(eService.getMobiles());	
+		eService.isVIP("15088603361");
 	}
 }
 	
@@ -55,6 +56,20 @@ class EService{
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public boolean isVIP(String mobile){
+		String userName = "root";
+		String password = "shinemo123";
+		String url = "jdbc:mysql://10.0.10.41:3306/shinemo_migu_activity";
+		DbUtil dbUtil = new DbUtil(userName, password, url);
+		String querySql = "select id from svip_order_record where mobile = \""+mobile+"\"order by id desc limit 1;";
+		List<Map<String, Object>> res= dbUtil.queryForList(querySql);
+		System.out.println(res);
+//		if (res.size() == 0)
+//			return false;
+//		else
+			return true;
 	}
 }
 
