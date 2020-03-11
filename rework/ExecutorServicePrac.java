@@ -18,7 +18,7 @@ public class ExecutorServicePrac{
 	public static void main(String[] args) {
 		EService eService = new EService();
 //		eService.getPacks(eService.getMobiles());	
-		eService.isVIP("15088603361");
+		eService.isSVIP("15088603361");
 	}
 }
 	
@@ -41,10 +41,10 @@ class EService{
 		for(String mobile : mobiles){
 			Map<String, Object> params = new HashMap<>();
 			params.put("mobile", mobile);
-			PackageList packageList = new PackageList();
-			packageList.setParams(params);
-			respList.add(pool1.submit(packageList));
-			System.out.println("Before call:" + packageList.getParams());
+			HWPackageList hwpackageList = new HWPackageList();
+			hwpackageList.setParams(params);
+			respList.add(pool1.submit(hwpackageList));
+			System.out.println("Before call:" + hwpackageList.getParams());
 		}
 				
 		for (Future f : respList){
@@ -58,24 +58,26 @@ class EService{
 		}
 	}
 	
-	public boolean isVIP(String mobile){
-		String userName = "root";
-		String password = "shinemo123";
-		String url = "jdbc:mysql://10.0.10.41:3306/shinemo_migu_activity";
-		DbUtil dbUtil = new DbUtil(userName, password, url);
-		String querySql = "select id from svip_order_record where mobile = \""+mobile+"\"order by id desc limit 1;";
-		List<Map<String, Object>> res= dbUtil.queryForList(querySql);
+	public boolean isSVIP(String mobile){
+		
 		System.out.println(res);
-//		if (res.size() == 0)
-//			return false;
-//		else
+		if (res.size() == 0)
+			return false;
+		else
 			return true;
 	}
+	
+	public void checkVip(String mobile) {
+		
+	}
+	
+
+	
 }
 
 
 
-class PackageList implements Callable<String>{
+class HWPackageList implements Callable<String>{
 	private String url = "http://10.0.10.83:7804/migu-activity-thirdapi/backdoor/getPackageList";
 	Map<String, String> headers = new HashMap<>();
 	Map<String, Object> params = new HashMap<>();
@@ -110,4 +112,56 @@ class PackageList implements Callable<String>{
 	}
 	
 
+}
+
+class SMVipInfo implements Callable<String>{
+	private static String userName = "root";
+	private static String password = "shinemo123";
+	private static String url = "jdbc:mysql://10.0.10.41:3306/shinemo_migu_activity";
+	private String mobile;
+	
+	@Override
+	public String call() throws Exception {
+		DbUtil dbUtil = new DbUtil(userName, password, url);
+		String querySql = "select * from svip_order_record where mobile = \""+this.getMobile()"\"order by id desc limit 1;";
+		List<Map<String, Object>> res= dbUtil.queryForList(querySql);
+		return res.get(0).toString();
+	}
+
+	public static String getUserName() {
+		return userName;
+	}
+
+	public static void setUserName(String userName) {
+		SMVipInfo.userName = userName;
+	}
+
+	public static String getPassword() {
+		return password;
+	}
+
+	public static void setPassword(String password) {
+		SMVipInfo.password = password;
+	}
+
+	public static String getUrl() {
+		return url;
+	}
+
+	public static void setUrl(String url) {
+		SMVipInfo.url = url;
+	}
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+	
+	
+	
+	
+	
 }
