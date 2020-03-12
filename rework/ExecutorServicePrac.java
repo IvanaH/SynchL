@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.google.gson.Gson;
+
 
 /*** This class is a practice of executorService, httprequst and db ops.
 * @author Ivana.H
@@ -18,7 +20,7 @@ public class ExecutorServicePrac{
 	public static void main(String[] args) {
 		EService eService = new EService();
 //		eService.getPacks(eService.getMobiles());	
-		eService.isSVIP("15088603361");
+//		eService.isSVIP("15088603361");
 	}
 }
 	
@@ -58,16 +60,16 @@ class EService{
 		}
 	}
 	
-	public boolean isSVIP(String mobile){
-		
-		System.out.println(res);
-		if (res.size() == 0)
-			return false;
-		else
-			return true;
-	}
-	
-	public void checkVip(String mobile) {
+	public boolean doCheckVip(VipRelated HWvipRelated, Map<String, String> smInfo ) {
+		if (smInfo.get("subscribe_time") != null)
+			if (Boolean.parseBoolean(smInfo.get("is_preferential")) & HWvipRelated.isPreferential) || (!Boolean.parseBoolean(smInfo.get("is_preferential")) & !HWvipRelated.isPreferential)) {
+				return true;
+			}
+			else {
+			    return false;
+			}
+			
+				
 		
 	}
 	
@@ -123,7 +125,7 @@ class SMVipInfo implements Callable<String>{
 	@Override
 	public String call() throws Exception {
 		DbUtil dbUtil = new DbUtil(userName, password, url);
-		String querySql = "select * from svip_order_record where mobile = \""+this.getMobile()"\"order by id desc limit 1;";
+		String querySql = "select mobile,gmt_create AS subscribe_time, unsubscribe_offer_id,is_preferential from svip_order_record where mobile = \""+this.getMobile()+"\"order by id desc limit 1;";
 		List<Map<String, Object>> res= dbUtil.queryForList(querySql);
 		return res.get(0).toString();
 	}

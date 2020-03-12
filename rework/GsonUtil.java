@@ -95,6 +95,5 @@ public class GsonUtil {
 		list.add(map);
 		list.add(map);
 		System.out.println(toJson(list));
-
 	}
 }
