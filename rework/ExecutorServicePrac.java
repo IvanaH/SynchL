@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 
 /*** This class is a practice of executorService, httprequst and db ops.
@@ -39,19 +40,20 @@ class EService{
 	
 	public void getPacks(List<String> mobiles) {
 		List<Future> respList = new ArrayList<Future>();
+		List<Object> result = new ArrayList<>();
 		
 		for(String mobile : mobiles){
 			Map<String, Object> params = new HashMap<>();
 			params.put("mobile", mobile);
+			result.add(new HashMap<>().put("mobile", mobile));
 			HWPackageList hwpackageList = new HWPackageList();
 			hwpackageList.setParams(params);
 			respList.add(pool1.submit(hwpackageList));
-			System.out.println("Before call:" + hwpackageList.getParams());
 		}
 				
 		for (Future f : respList){
 			try {
-				System.out.println(f.get().toString());
+				result.get(respList.indexOf(f)).put(new HashMap<>().put("res",f.get().toString()));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
@@ -61,20 +63,20 @@ class EService{
 	}
 	
 	public boolean doCheckVip(VipRelated HWvipRelated, Map<String, String> smInfo ) {
-		if (smInfo.get("subscribe_time") != null)
-			if (Boolean.parseBoolean(smInfo.get("is_preferential")) & HWvipRelated.isPreferential) || (!Boolean.parseBoolean(smInfo.get("is_preferential")) & !HWvipRelated.isPreferential)) {
+		if (smInfo.get("subscribe_time") != null){
+			if ((Boolean.parseBoolean(smInfo.get("is_preferential"))&&HWvipRelated.isPreferential)||(!HWvipRelated.isPreferential&&!Boolean.parseBoolean(smInfo.get("is_preferential")))) {
 				return true;
 			}
 			else {
+				System.out.println("Don't get discount at same time.");
 			    return false;
 			}
-			
-				
-		
-	}
-	
-
-	
+		}
+		else{
+			System.out.println("No susbcribe record.");
+			return false;
+		}
+	}	
 }
 
 
