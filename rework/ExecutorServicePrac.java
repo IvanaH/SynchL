@@ -38,14 +38,13 @@ class EService{
 		return mobiles;
 	}
 	
-	public void getPacks(List<String> mobiles) {
+	public List<Object> getPacks(List<String> mobiles) {
 		List<Future> respList = new ArrayList<Future>();
 		List<Object> result = new ArrayList<>();
 		
 		for(String mobile : mobiles){
 			Map<String, Object> params = new HashMap<>();
 			params.put("mobile", mobile);
-			result.add(new HashMap<>().put("mobile", mobile));
 			HWPackageList hwpackageList = new HWPackageList();
 			hwpackageList.setParams(params);
 			respList.add(pool1.submit(hwpackageList));
@@ -53,16 +52,41 @@ class EService{
 				
 		for (Future f : respList){
 			try {
-				result.get(respList.indexOf(f)).put(new HashMap<>().put("res",f.get().toString()));
+				Map<String, Object> resMap = new HashMap<>();
+				resMap.put("mobile", mobiles.get(respList.indexOf(f)));
+				resMap.put("res", f.get().toString());
+				result.add(resMap);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		return result;
+		
+	}
+	
+	public void checkVips(List<Map<String, Object>> HWInfoList) {
+		List<> resList = new ArrayList<>();
+		
+		for(Map<String, Object> ele : HWInfoList){
+			List<Object> res = new ArrayList<>();
+			res.add(ele);
+			SMVipInfo smVipInfo = new SMVipInfo();
+			smVipInfo.setMobile(ele.get("mobile").toString());
+			res.add(pool1.submit(smVipInfo));
+			resList.add(res);
+		}
+		
+		for(List<Object> res:resList){
+			Future f = res.get(1);
+			doCheckVip(res.get(0), f.get());
+		}
 	}
 	
 	public boolean doCheckVip(VipRelated HWvipRelated, Map<String, String> smInfo ) {
+
 		if (smInfo.get("subscribe_time") != null){
 			if ((Boolean.parseBoolean(smInfo.get("is_preferential"))&&HWvipRelated.isPreferential)||(!HWvipRelated.isPreferential&&!Boolean.parseBoolean(smInfo.get("is_preferential")))) {
 				return true;
@@ -77,6 +101,23 @@ class EService{
 			return false;
 		}
 	}	
+	
+	
+	public List<Future> getSMVipInfo(List<String> mobiles) {
+		List<Future> smInfos = new ArrayList<>();
+		
+		for(String mobile : mobiles){
+			SMVipInfo smVipInfo = new SMVipInfo();
+			smVipInfo.setMobile(mobile);	
+			smInfos.add(pool1.submit(smVipInfo));
+		}
+		
+		return smInfos;
+	}
+	
+	
+
+
 }
 
 
@@ -162,10 +203,5 @@ class SMVipInfo implements Callable<String>{
 
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
-	}
-	
-	
-	
-	
-	
+	}	
 }

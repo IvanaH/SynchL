@@ -11,10 +11,11 @@ public class Miscellany{
 		test t1 = new test();
 //		t1.testHttpUtil();		
 //		t1.testListNestedMap();
-		System.out.println(t1.test1() + " in main: "+System.currentTimeMillis());
-		System.out.println();
-		System.out.println(t1.test2() + " in main: "+System.currentTimeMillis());
-		System.out.println(t1.test3() + " in main: "+System.currentTimeMillis());
+//		System.out.println(t1.test1() + " in main: "+System.currentTimeMillis());
+//		System.out.println();
+//		System.out.println(t1.test2() + " in main: "+System.currentTimeMillis());
+//		System.out.println(t1.test3() + " in main: "+System.currentTimeMillis());
+		t1.testStrBoolean();
 
 
 	}
@@ -53,7 +54,6 @@ class test{
 //		System.out.println(list.get(1).get("ele2-key2"));
 		
 		System.out.println(list.get(1));
-		Map<String, Object> res = new HashMap<>();
 //		res = list.get(1);
 	}
 	
@@ -96,5 +96,16 @@ class test{
 			System.out.println("in finally block: "+System.currentTimeMillis());
 			list1.add("string11111");
 		}		
+	}
+	
+	
+	public void testStrBoolean() {
+		// Use .parseBoolean() to covert str to boolean
+		Map<String, String> map = new HashMap<>();
+		map.put("T1", "true");
+		
+		System.out.println(map.get("T1").toString());
+		System.out.println(Boolean.getBoolean(map.get("T1").toString()));
+		System.out.println(Boolean.parseBoolean(map.get("T1").toString()));		
 	}
 }
