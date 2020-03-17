@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import com.alibaba.druid.pool.DruidDataSource;
 
@@ -41,10 +42,19 @@ public class DbUtil {
 		return jdbcTemplate.queryForObject(sql, requiredType);
 	}
 	
+	public <T> T queryForObject(String sql, RowMapper<T> rowMapper) {
+		return jdbcTemplate.queryForObject(sql, rowMapper);
+	}
+	
+	
 	public List<Map<String, Object>> queryForList(String sql){
 		return jdbcTemplate.queryForList(sql);
 	}
 
+	public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper){
+		return jdbcTemplate.query(sql,rowMapper);
+	}
+	
 	public String getUserName() {
 		return userName;
 	}

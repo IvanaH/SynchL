@@ -1,6 +1,5 @@
 package rework;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,25 +7,15 @@ import java.util.Map;
 
 /*** This class is a base practice of http and db ops.
 * @author Ivana.H
+* Version1: DB config should be stated as static param of class
 */
 public class SVIPCheck{	
-	public List<String> getMobiles() {
-		List<String> mobiles = new ArrayList<String>();
-		mobiles.add("15088603364");
-		mobiles.add("15068746748");
-		mobiles.add("15957193120");
-		mobiles.add("15958032925");
-		mobiles.add("18458872034");
-		return mobiles;
-	}
+	public static String userName = "root";
+	public static String password = "shinemo123";
+	public static String url = "jdbc:mysql://10.0.10.41:3306/shinemo_migu_activity";
+	public static DbUtil dbUtil = new DbUtil(userName, password, url);
 
-	
 	public List<Map<String, Object>> getSMVipInfo(String mobile) {
-		String userName = "root";
-		String password = "shinemo123";
-		String url = "jdbc:mysql://10.0.10.41:3306/shinemo_migu_activity";
-		
-		DbUtil dbUtil = new DbUtil(userName, password, url);
 		String querySql = "select mobile,gmt_create AS subscribe_time, unsubscribe_offer_id,is_preferential from svip_order_record where mobile = \""+mobile+"\"order by id desc limit 1;";
 		List<Map<String, Object>> res= dbUtil.queryForList(querySql);
 		
