@@ -8,51 +8,99 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.mysql.cj.x.protobuf.MysqlxPrepare.Execute;
 
-
-
-/*** This class is a practice of executorService, httprequst and db ops.
+/*** 
 * @author Ivana.H
 */
-public class ExecutorServicePrac{
+public class EServiceByPage{
 	public static void main(String[] args) {
-		EService eService = new EService();
-//		eService.getSMVipInfo("15088603364");
-//		eService.doCheck("15068746748");
-		System.out.println(eService.multiThreadCheck(eService.getMobiles()));
-		System.out.println();
+		CheckByPages checkByPages = new CheckByPages(2);
+		checkByPages.byPages();
 	}
 }
+
+class CheckByPages implements Runnable{
+	public static ExecutorService pool1 =  Executors.newFixedThreadPool(2);
+
+	private CheckSVIP checkSVIP;
+	private CountDownLatch pSize;
+	private List<String> mobiles;
+	private String mobile;
+	private int pageS;
 	
-class EService{
-	public static ExecutorService pool1 =  Executors.newFixedThreadPool(3);
 	
+	public CheckByPages(int pageSize) {
+		checkSVIP = new CheckSVIP();
+		this.mobiles = checkSVIP.getMobiles();
+		this.pageS = (this.mobiles.size()>pageSize)?pageSize:this.mobiles.size();
+	}
+	
+	@Override
+	public void run() {
+		checkSVIP.doCheck(mobile);
+		pSize.countDown();		
+	}
+	
+	public void byPages() {
+		int i = 0;
+		
+		while(i<this.mobiles.size()){
+			pSize = new CountDownLatch(pageS);
+			
+			do{
+				if(i<this.mobiles.size()){
+					mobile = this.mobiles.get(i);
+					System.out.println(mobile);
+					pool1.execute(this);
+					i ++;
+				}else
+					break;
+			}while(pSize.getCount()>0);
+			
+			System.out.println("pSize.getCount():  "+ pSize.getCount());
+			
+			try {
+				pSize.await();
+				System.out.println(i);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}
+
+//List<List<String>> arrays = new ArrayList();
+//for(List<String> currentPage:arrays){
+//	
+//	final  CountDownLatch countDown = new CountDownLatch(currentPage.size());
+//	for(String mobile:currentPage){
+//		Runnable runnable = new Runnable(){
+//			mobile,countdown;
+//
+//			run(){
+//				try{
+//					mobile -> check
+//				}	
+//				countdown.latch;
+//			}	
+//
+//		}	
+//		pool.submit()
+//	}
+//	try{
+//		countDown.await()
+//	}catch(Exception e){
+//
+//	}
+//
+//}
+
+	
+class CheckSVIP{
 	public static String userName = "root";
 	public static String password = "shinemo123";
 	public static String url = "jdbc:mysql://10.0.10.41:3306/shinemo_migu_activity";
 	public static DbUtil dbUtil = new DbUtil(userName, password, url);
-	
-	public String multiThreadCheck(List<String> mobiles) {
-		for(String mobile:mobiles){
-			Runnable runnable = new Runnable() {			
-				@Override
-				public void run() {
-					doCheck(mobile);
-				}
-			};
-			
-			pool1.execute(runnable);
-		}
-		
-		pool1.shutdown();
-		
-		return ("Checked: "+mobiles.size());		
-	}
-	
-	public String multiThreadCheck(List<String> mobiles, int PageSize){		
-		return ("Checked: "+mobiles.size());		
-	}
 
 	public List<String> getMobiles() {
 		List<String> mobiles = new ArrayList<String>();
@@ -61,6 +109,17 @@ class EService{
 		mobiles.add("15957193120");
 		mobiles.add("15958032925");
 		mobiles.add("18458872034");
+		mobiles.add("18358185826");
+		mobiles.add("15869667586");
+		mobiles.add("13989412941");
+		mobiles.add("15968541079");
+		mobiles.add("19857963611");
+		mobiles.add("18757112364");
+		mobiles.add("18757114843");
+		mobiles.add("17280164421");
+		mobiles.add("18267207252");
+		mobiles.add("13819782724");
+		mobiles.add("13867671921");
 		return mobiles;
 	}
 	
@@ -73,26 +132,6 @@ class EService{
 			return list.get(0);
 	}
 	
-//	public VipRelated getSMVipInfo(String mobile) {
-//		String querySql = "select mobile,gmt_create AS subscribe_time, unsubscribe_offer_id,is_preferential from svip_order_record where mobile = \""+mobile+"\"order by id desc limit 1;";
-//		return dbUtil.queryForObject(querySql,new VipRelatedRowMapper());		
-//	}
-
-//	public VipRelated getSMVipInfo(String mobile) {
-//		String querySql = "select mobile,gmt_create AS subscribe_time, unsubscribe_offer_id,is_preferential from svip_order_record where mobile = \""+mobile+"\"order by id desc limit 1;";
-//		List<Map<String, Object>> res = dbUtil.queryForList(querySql);
-//		VipRelated vipRelated = new VipRelated();
-//
-//		if (res.size() > 0) {
-//			vipRelated.setMobile(res.get(0).get("mobile").toString());
-//        	vipRelated.setIsPreferential(Boolean.parseBoolean(res.get(0).get("is_preferential").toString()));
-//    		return vipRelated;		
-//		}else {
-//    		System.out.println("result of sql is null.");
-//    		return null;
-//		}		
-//	}
-	
 	public String getHWSvipInfo(String mobile) {
 		String url = "http://10.0.10.83:7804/migu-activity-thirdapi/backdoor/getPackageList";
 		Map<String, String> headers = new HashMap<>();
@@ -100,7 +139,6 @@ class EService{
 		params.put("mobile", mobile);
 		
 		return HttpUtil.get(url, headers, params);
-//		System.out.println(HttpUtil.get(url, headers, params));
 	}
 	
 	public void doCheck(String mobile) {

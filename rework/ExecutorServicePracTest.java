@@ -20,7 +20,7 @@ public class ExecutorServicePracTest {
 		Map<String, String> smInfo = new HashMap<String, String>();
 		smInfo.put("subscribe_time", null);
 		smInfo.put("is_preferential", Integer.toString(1));
-		eService.doCheckVip(vipRelated, smInfo);		
+//		eService.doCheckVip(vipRelated, smInfo);		
 	}
 
 }
