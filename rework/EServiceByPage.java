@@ -14,95 +14,91 @@ import java.util.concurrent.Executors;
 */
 public class EServiceByPage{
 	public static void main(String[] args) {
-		CheckByPages checkByPages = new CheckByPages(2);
-		checkByPages.byPages();
+		Mobiles mobiles = new Mobiles();
+		
+		CheckByPage checkByPage = new CheckByPage();
+//		checkByPage.doByPage(checkByPage.doPaging(mobiles.mobileList(), 3));
+		checkByPage.doPaging(mobiles.mobileList(), 3);
+//		checkByPage.doByPage(checkByPage.doPaging(mobiles.mobileList(), 4));
 	}
 }
 
-class CheckByPages implements Runnable{
-	public static ExecutorService pool1 =  Executors.newFixedThreadPool(2);
+class CheckByPage{
+	public static ExecutorService pool1 = Executors.newFixedThreadPool(2);
+	
+	public List<List<String>> doPaging(List<String> mobiles,int pageSize) {
+		List<List<String>> mobilePages = new ArrayList<>();
 
-	private CheckSVIP checkSVIP;
-	private CountDownLatch pSize;
-	private List<String> mobiles;
+		if (mobiles.size() > 0){
+			int pageNum = (mobiles.size()%pageSize==0)?mobiles.size()/pageSize:mobiles.size()/pageSize+1;
+			int currentIndex = 0;
+			
+			for(int i=0;i<pageNum;i++){
+				//create a new page
+				List<String> singlePage = new ArrayList<>();
+				
+				for(;currentIndex<mobiles.size();){
+					singlePage.add(mobiles.get(currentIndex));
+					currentIndex++;
+					
+					//next data is put in currentPage or next page  
+					if(currentIndex%pageSize ==0)
+						break;
+				}
+		        
+				mobilePages.add(singlePage);
+			}
+		}else 				
+			mobilePages = null;
+			
+		System.out.println("\n--- After by page: " + mobilePages);
+		return mobilePages;		
+	}
+	
+	public void doByPage(List<List<String>> mobilePages){			
+		for(List<String> currentPage:mobilePages){				
+			if (currentPage.size()>0){
+				CountDownLatch countDownLatch = new CountDownLatch(currentPage.size());
+				System.out.println(countDownLatch.toString());
+
+				for(String mobile:currentPage){
+					System.out.println("--- CurrentPage: " + (mobilePages.indexOf(currentPage)+1)+" - mobile : " + mobile);
+					pool1.execute(new CheckByThread(mobile, countDownLatch));
+				}
+				try {
+					countDownLatch.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}else
+				continue;
+		}	
+		System.out.println("Done");
+	}
+}
+
+
+class CheckByThread implements Runnable{
+	private CountDownLatch countDownLatch;	
 	private String mobile;
-	private int pageS;
 	
-	
-	public CheckByPages(int pageSize) {
-		checkSVIP = new CheckSVIP();
-		this.mobiles = checkSVIP.getMobiles();
-		this.pageS = (this.mobiles.size()>pageSize)?pageSize:this.mobiles.size();
+	public CheckByThread(String mobile, CountDownLatch downLatch) {
+		this.mobile = mobile;
+		this.countDownLatch = downLatch;
 	}
 	
 	@Override
 	public void run() {
+		CheckSVIP checkSVIP = new CheckSVIP();
 		checkSVIP.doCheck(mobile);
-		pSize.countDown();		
-	}
-	
-	public void byPages() {
-		int i = 0;
-		
-		while(i<this.mobiles.size()){
-			pSize = new CountDownLatch(pageS);
-			
-			do{
-				if(i<this.mobiles.size()){
-					mobile = this.mobiles.get(i);
-					System.out.println(mobile);
-					pool1.execute(this);
-					i ++;
-				}else
-					break;
-			}while(pSize.getCount()>0);
-			
-			System.out.println("pSize.getCount():  "+ pSize.getCount());
-			
-			try {
-				pSize.await();
-				System.out.println(i);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		countDownLatch.countDown();		
+		System.out.println(Thread.currentThread()+countDownLatch.toString());
 	}
 }
 
-//List<List<String>> arrays = new ArrayList();
-//for(List<String> currentPage:arrays){
-//	
-//	final  CountDownLatch countDown = new CountDownLatch(currentPage.size());
-//	for(String mobile:currentPage){
-//		Runnable runnable = new Runnable(){
-//			mobile,countdown;
-//
-//			run(){
-//				try{
-//					mobile -> check
-//				}	
-//				countdown.latch;
-//			}	
-//
-//		}	
-//		pool.submit()
-//	}
-//	try{
-//		countDown.await()
-//	}catch(Exception e){
-//
-//	}
-//
-//}
 
-	
-class CheckSVIP{
-	public static String userName = "root";
-	public static String password = "shinemo123";
-	public static String url = "jdbc:mysql://10.0.10.41:3306/shinemo_migu_activity";
-	public static DbUtil dbUtil = new DbUtil(userName, password, url);
-
-	public List<String> getMobiles() {
+class Mobiles{
+	public List<String> mobileList() {
 		List<String> mobiles = new ArrayList<String>();
 		mobiles.add("15088603364");
 		mobiles.add("15068746748");
@@ -122,6 +118,14 @@ class CheckSVIP{
 		mobiles.add("13867671921");
 		return mobiles;
 	}
+}
+
+	
+class CheckSVIP{
+	public static String userName = "root";
+	public static String password = "shinemo123";
+	public static String url = "jdbc:mysql://10.0.10.41:3306/shinemo_migu_activity";
+	public static DbUtil dbUtil = new DbUtil(userName, password, url);
 	
 	public VipRelated getSMVipInfo(String mobile) {
 		String querySql = "select mobile,gmt_create AS subscribe_time, unsubscribe_offer_id,is_preferential from svip_order_record where mobile = \""+mobile+"\"order by id desc limit 1;";
