@@ -1,10 +1,12 @@
 package rework;
 
+import java.io.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 public class Miscellany{
 	public static void main(String[] args) {
@@ -15,7 +17,8 @@ public class Miscellany{
 //		System.out.println();
 //		System.out.println(t1.test2() + " in main: "+System.currentTimeMillis());
 //		System.out.println(t1.test3() + " in main: "+System.currentTimeMillis());
-		t1.testStrBoolean();
+//		t1.testStrBoolean();
+		t1.genSql();
 
 
 	}
@@ -107,5 +110,40 @@ class test{
 		System.out.println(map.get("T1").toString());
 		System.out.println(Boolean.getBoolean(map.get("T1").toString()));
 		System.out.println(Boolean.parseBoolean(map.get("T1").toString()));		
+	}
+	
+	public void genSql() {
+		String querySqlB = "INSERT INTO `sign_last` (mobile,gmt_create,gmt_modified,sign_date) VALUES ('";
+		String querySqlA = "',NOW(),NOW(),'2020-03-23'),('";
+//		List<String> mobiles = new ArrayList<String>();
+		List<String> aa = new ArrayList<String>();
+		String mobile = "";
+		String stringA = "";
+		
+		for(int i=0;i<300000;i++){
+			if(i%500!=0){
+				mobile = "15050" + (100000 + i);
+				stringA = stringA+mobile+querySqlA;
+			}else{
+				aa.add(stringA);
+				stringA = "";
+			}
+
+		}
+		
+		try {
+            File writeName = new File("D:\\output.txt"); // 相对路径，如果没有则要建立一个新的output.txt文件
+            writeName.createNewFile(); // 创建新文件,有同名的文件的话直接覆盖
+            FileWriter writer = new FileWriter(writeName);
+            BufferedWriter out = new BufferedWriter(writer);
+            for (String a:aa) {		
+				out.write(querySqlB+a+"kk\r\n");
+            }
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+		
+		System.out.println("done");		
 	}
 }
